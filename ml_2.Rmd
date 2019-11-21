@@ -10,7 +10,8 @@ knitr::opts_chunk$set(echo = FALSE)
 library(fs)
 library(tidymodels)
 library(tidyverse)
-
+library(yardstick)
+library(gt)
 ```
 
 ## Predicting Democratic Votes
@@ -87,5 +88,21 @@ x_1 <- clean %>%
 ```
 
 
+```{r}
+# How good is this model? Use the metrics() function from the yardstick package
+# to explore that question.
 
+metrics(x_1, truth = dvote, estimate = pred_dvote)
+```
+
+```{r}
+model_2 <- glm(data = clean, dvote ~ gender + party + state, family = "binomial")
+
+x_2 <- clean %>% 
+  mutate(prediction = predict(model_2, type = "response")) %>% 
+  mutate(pred_dvote = as.factor(ifelse(prediction > mean(prediction), "Yes", "No")))
+
+metrics(x_2, truth = dvote, estimate = pred_dvote)
+summary(model_2)
+```
 
